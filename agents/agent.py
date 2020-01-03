@@ -1,5 +1,4 @@
 # TODO: your agent here!
-
 from agents.actor         import Actor
 from agents.critic        import Critic
 from agents.replay_buffer import ReplayBuffer
@@ -15,17 +14,17 @@ class DDPG():
     """Reinforcement Learning agent that learns using DDPG."""
     def __init__(self, task):
         self.task = task
-        self.state_size = task.state_size
+        self.state_size  = task.state_size
         self.action_size = task.action_size
-        self.action_low = task.action_low
+        self.action_low  = task.action_low
         self.action_high = task.action_high
 
         # Actor (Policy) Model
-        self.actor_local = Actor(self.state_size, self.action_size, self.action_low, self.action_high)
+        self.actor_local  = Actor(self.state_size, self.action_size, self.action_low, self.action_high)
         self.actor_target = Actor(self.state_size, self.action_size, self.action_low, self.action_high)
 
         # Critic (Value) Model
-        self.critic_local = Critic(self.state_size, self.action_size)
+        self.critic_local  = Critic(self.state_size, self.action_size)
         self.critic_target = Critic(self.state_size, self.action_size)
 
         # Initialize target model parameters with local model parameters
@@ -33,19 +32,19 @@ class DDPG():
         self.actor_target.model.set_weights(self.actor_local.model.get_weights())
 
         # Noise process
-        self.exploration_mu = 0
+        self.exploration_mu    = 0
         self.exploration_theta = 0.15
         self.exploration_sigma = 0.2
-        self.noise = OUNoise(self.action_size, self.exploration_mu, self.exploration_theta, self.exploration_sigma)
+        self.noise             = OUNoise(self.action_size, self.exploration_mu, self.exploration_theta, self.exploration_sigma)
 
         # Replay memory
         self.buffer_size = 100000
-        self.batch_size = 64
-        self.memory = ReplayBuffer(self.buffer_size, self.batch_size)
+        self.batch_size  = 64
+        self.memory      = ReplayBuffer(self.buffer_size, self.batch_size)
 
         # Algorithm parameters
         self.gamma = 0.99  # discount factor
-        self.tau = 0.01  # for soft update of target parameters
+        self.tau   = 0.01  # for soft update of target parameters
 
     def reset_episode(self):
         self.noise.reset()
