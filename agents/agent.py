@@ -1,12 +1,9 @@
 # TODO: your agent here!
-
 from agents.actor         import Actor
 from agents.critic        import Critic
 from agents.replay_buffer import ReplayBuffer
 from agents.ou_noise      import OUNoise
 import numpy as np
-
-
 
 from keras import layers, models, optimizers
 from keras import backend as K
