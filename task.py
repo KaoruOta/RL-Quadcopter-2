@@ -19,8 +19,8 @@ class Task():
         self.action_repeat = 3
 
         self.state_size = self.action_repeat * 6
-        self.action_low = 0
-        self.action_high = 900
+        self.action_low = 390
+        self.action_high = 700
         self.action_size = 4
 
         # Goal
@@ -28,7 +28,8 @@ class Task():
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
-        reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
+        #reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
+        reward = 1-(0.003*(abs(self.sim.pose[:3] - self.target_pos))).sum()
         return reward
 
     def step(self, rotor_speeds):
