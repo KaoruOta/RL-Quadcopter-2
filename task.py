@@ -4,7 +4,7 @@ from physics_sim import PhysicsSim
 class Task():
     """Task (environment) that defines the goal and provides feedback to the agent."""
     def __init__(self, init_pose=None, init_velocities=None, 
-        init_angle_velocities=None, runtime=5., target_pos=None):
+        init_angle_velocities=None, runtime=10., target_pos=None):
         """Initialize a Task object.
         Params
         ======
@@ -19,16 +19,31 @@ class Task():
         self.action_repeat = 3
 
         self.state_size = self.action_repeat * 6
-        self.action_low = 0
-        self.action_high = 900
+        self.action_low = 390
+        self.action_high = 700
         self.action_size = 4
+        self.z_flag = False
+        self.task_ver = 0.02
 
         # Goal
         self.target_pos = target_pos if target_pos is not None else np.array([0., 0., 10.]) 
 
     def get_reward(self):
         """Uses current pose of sim to return reward."""
-        reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
+        if self.sim.pose[2] > self.target_pos[2] - 10:
+            self.z_flag = True
+        
+        if self.z_flag == True:
+            if self.sim.pose[2] > self.target_pos[2]  + 30:
+                reward = 1-(0.01*(abs(self.sim.pose[:3] - self.target_pos))).sum()
+            elif  self.sim.pose[2] < self.target_pos[2]  - 30:
+                reward = 1-(0.01*(abs(self.sim.pose[:3] - self.target_pos))).sum()
+            else:
+                reward = 1-(0.003*(abs(self.sim.pose[:3] - self.target_pos))).sum()
+        else:
+            reward = 1-(0.003*(abs(self.sim.pose[:3] - self.target_pos))).sum()
+        #reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
+        #reward = 1-(0.003*(abs(self.sim.pose[:3] - self.target_pos))).sum()
         return reward
 
     def step(self, rotor_speeds):

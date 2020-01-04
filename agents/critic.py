@@ -1,4 +1,4 @@
-from keras import layers, models, optimizers
+from keras import layers, models, optimizers, regularizers
 from keras import backend as K
 
 class Critic:
@@ -6,7 +6,6 @@ class Critic:
 
     def __init__(self, state_size, action_size):
         """Initialize parameters and build model.
-
         Params
         ======
             state_size (int): Dimension of each state
@@ -26,23 +25,46 @@ class Critic:
         actions = layers.Input(shape=(self.action_size,), name='actions')
 
         # Add hidden layer(s) for state pathway
-        net_states = layers.Dense(units=32, activation='relu')(states)
-        net_states = layers.Dense(units=64, activation='relu')(net_states)
-
-        # Add hidden layer(s) for action pathway
-        net_actions = layers.Dense(units=32, activation='relu')(actions)
-        net_actions = layers.Dense(units=64, activation='relu')(net_actions)
-
+        #The Initial hidden layers
+        #net_states = layers.Dense(units=32, activation='relu')(states)
+        #net_states = layers.Dense(units=64, activation='relu')(net_states)
+        
         # Try different layer sizes, activations, add batch normalization, regularizers, etc.
 
+        #Try 1
+        #net_states = layers.Dense(units=512, activation='relu')(states)
+        #net_states = layers.BatchNormalization()(net_states)
+        #net_states = layers.Activation('relu')(net_states)
+        #net_states = layers.Dense(units=256, activation='relu')(net_states)
+        #net_actions = layers.Dense(units=256, activation='relu')(actions)
+        
+        #Try2  
+        #net_states = layers.Dense(units=512, kernel_regularizer=regularizers.l2(0.01))(states)
+        #net_states = layers.BatchNormalization()(net_states)
+        #net_states = layers.Activation('relu')(net_states)
+        #net_states = layers.Dense(units=256, activation='relu', kernel_regularizer=regularizers.l2(0.01))(net_states)
+        
+        #net_actions = layers.Dense(units=256, activation='relu', kernel_regularizer=regularizers.l2(0.01))(actions)
+
+        #Try3
+        net_states = layers.Dense(units=512, kernel_regularizer=regularizers.l2(0.01))(states)
+        net_states = layers.BatchNormalization()(net_states)
+        net_states = layers.Activation('relu')(net_states)
+        net_states = layers.Dense(units=256, activation='relu', kernel_regularizer=regularizers.l2(0.01))(net_states)
+        #net_states = layers.Dense(units=128, activation='relu', kernel_regularizer=regularizers.l2(0.01))(net_states)
+        
+        net_actions = layers.Dense(units=256, activation='relu', kernel_regularizer=regularizers.l2(0.01))(actions)
+        
+        
         # Combine state and action pathways
         net = layers.Add()([net_states, net_actions])
         net = layers.Activation('relu')(net)
 
         # Add more layers to the combined network if needed
 
-        # Add final output layer to prduce action values (Q values)
-        Q_values = layers.Dense(units=1, name='q_values')(net)
+        # Add final output layer to produce action values (Q values)
+        Q_values = layers.Dense(units=1, name='q_values',
+                                kernel_initializer=layers.initializers.RandomUniform(minval=-3e-3,maxval=3e-3))(net)
 
         # Create Keras model
         self.model = models.Model(inputs=[states, actions], outputs=Q_values)
